@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meus trabalhos | Min Maria</title>
+<link rel="icon" type="image/png" href="galeria/favicon.png">
+<link rel="apple-touch-icon" href="galeria/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:ital,wght@0,400;0,500;0,600;1,400&family=Archivo:wdth,wght@100..125,700..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page">
+
+<header class="topbar container">
+  <a href="index.html#inicio" class="brand" aria-label="Min Maria"><img src="galeria/Logo%20Min%20Maria%20Off%20White%20Bloco%201.png" alt="Min Maria"></a>
+  <nav class="nav" aria-label="Principal">
+    <a href="index.html#inicio">início</a>
+    <a href="index.html#sobre">sobre mim</a>
+    <a href="galeria.html" class="is-active" aria-current="page">meus trabalhos</a>
+    <a href="https://wa.me/5511965270351?text=Ol%C3%A1%2C%20vim%20pelo%20seu%20portf%C3%B3lio%20e%20gostei!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es." target="_blank" rel="noopener">entre em contato</a>
+  </nav>
+  <a class="icon-btn" href="https://www.behance.net/yasminmariaaf" aria-label="Behance"><img src="galeria/Logo Behance.png" alt=""></a>
+</header>
+
+<!-- TOPO: título, texto e filtros à esquerda + moldura com a foto à direita -->
+<section class="g-hero container">
+  <img class="g-hero__shark" src="galeria/Tubar%C3%A3o%20lado%20esquerdo%20Meus%20Trabalhos%20bloco%201.png" alt="">
+  <div class="g-hero__text">
+    <h1>Do papel à marca</h1>
+    <p>Identidade visual, social media, impressos e capas, tudo começando num rascunho. Clica num projeto pra ver os detalhes.</p>
+    <div class="filters" id="filters" role="group" aria-label="Filtrar projetos"></div>
+  </div>
+  <img class="g-hero__frame" src="galeria/Moldura%20Meus%20Trabalhos%20bloco%201.png" alt="Foto dentro de uma moldura preta ornamentada, com asteriscos verde e vermelho">
+</section>
+
+<!-- CARROSSEL (os cards são gerados por js/script.js a partir da lista PROJETOS) -->
+<section class="car" aria-roledescription="carousel" aria-label="Projetos">
+  <div class="car__stage" id="stage"></div>
+  <div class="car__ui container">
+    <button type="button" class="car__btn" id="c-prev" aria-label="Projeto anterior">←</button>
+    <div class="car__mid">
+      <span class="car__count" id="count" aria-live="polite"></span>
+      <div class="car__dots" id="dots"></div>
+    </div>
+    <button type="button" class="car__btn" id="c-next" aria-label="Próximo projeto">→</button>
+  </div>
+</section>
+
+<section id="contato" class="cta">
+  <img class="ast ast--cta-tl" src="galeria/Asterisco%20Verde%20Canto%20Superior%20Bloco%204.png" alt="">
+  <img class="ast ast--cta-br" src="galeria/Asterisco%20Verde%20Canto%20Inferior%20Bloco%204.png" alt="">
+  <img class="tail tail--l" src="galeria/Cauda%20Tubar%C3%A3o%20Off%20White%20Lado%20Esquerdo%20Bloco%204.png" alt="">
+  <img class="tail tail--r" src="galeria/Cauda%20Tubar%C3%A3o%20Off%20White%20Lado%20Direito%20Bloco%204.png" alt="">
+  <h2>Vamos criar algo incrível juntos?</h2>
+  <a class="btn btn--green" href="https://wa.me/5511965270351?text=Ol%C3%A1%2C%20vim%20pelo%20seu%20portf%C3%B3lio%20e%20gostei!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es." target="_blank" rel="noopener">entrar em contato</a>
+</section>
+
+</div>
+
+<!-- DETALHE DO PROJETO (abre ao clicar no card do meio do carrossel) -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-title" hidden>
+  <div class="modal__backdrop" data-close></div>
+  <div class="modal__panel">
+    <button type="button" class="modal__close" data-close aria-label="Fechar projeto">×</button>
+
+    <div class="modal__media">
+      <!-- projeto simples: uma imagem grande + miniaturas -->
+      <div id="m-simple">
+        <div class="modal__stage" id="m-stage"><img id="m-img" alt=""></div>
+        <div class="modal__thumbs" id="m-thumbs"></div>
+      </div>
+
+      <!-- projeto com seções (ex.: Inklua): a capa fica no bloco acima; aqui entram os posts -->
+      <div class="secs" id="m-sections" hidden>
+
+        <!-- grupos de posts / documentos (miniaturas clicáveis); montados pelo script.js -->
+        <div class="secs__index" id="s-index"></div>
+
+        <!-- carrossel do post aberto: um slide ao lado do outro, cada um separado -->
+        <div class="secs__viewer" id="s-viewer" hidden>
+          <div class="secs__head">
+            <button type="button" class="secs__back arrow" id="s-back" aria-label="Voltar para os posts">←</button>
+            <h3 id="s-title"></h3>
+          </div>
+          <p class="secs__desc" id="s-desc"></p>
+
+          <!-- moldura do post: um slide por vez, deslize ou use as setas (como no Instagram) -->
+          <div class="secs__stage">
+            <button type="button" class="igbtn" id="s-prev" aria-label="Slide anterior">←</button>
+            <div class="secs__frame">
+              <div class="secs__strip" id="s-strip" tabindex="0" aria-label="Slides do post"></div>
+              <span class="secs__badge" id="s-count" aria-live="polite"></span>
+            </div>
+            <button type="button" class="igbtn" id="s-next" aria-label="Próximo slide">→</button>
+          </div>
+          <div class="secs__dots" id="s-dots"></div>
+          <div class="secs__actions" id="s-actions" hidden></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal__info">
+      <span class="chip" id="m-tag"></span>
+      <h2 id="m-title"></h2>
+      <div class="modal__text" id="m-text"></div>
+      <dl class="facts" id="m-facts"></dl>
+      <a class="btn btn--green" id="m-cta" href="https://wa.me/5511965270351" target="_blank" rel="noopener">quero um projeto assim</a>
+    </div>
+
+    <nav class="modal__nav" aria-label="Navegar entre projetos">
+      <button type="button" class="mnav" id="m-prev"><span class="arrow" aria-hidden="true">←</span><span class="mnav__label" id="m-prev-t"></span></button>
+      <span class="modal__count" id="m-count"></span>
+      <button type="button" class="mnav mnav--next" id="m-next"><span class="mnav__label" id="m-next-t"></span><span class="arrow" aria-hidden="true">→</span></button>
+    </nav>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>

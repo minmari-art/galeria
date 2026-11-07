@@ -1,0 +1,2313 @@
+/* Variáveis */
+:root {
+  --cream: #FFF9EA;
+  --red: #B71515;
+  --green: #C6E384;
+  --dark: #222222;
+  --ink: #1d1d1d;
+  --head: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --body: 'Inter', system-ui, sans-serif;
+  --head-wide: 'Archivo', 'Plus Jakarta Sans', system-ui, sans-serif; /* fonte larga dos títulos do Figma */
+  --gutter: clamp(20px, 10vw, 138px);
+
+  /* Recuo do texto do hero (desktop) e da logo do cabeçalho: um valor só para os dois ficarem sempre alinhados.
+     = 5% da 1ª coluna do grid do hero (1fr de 1fr + 1.15fr, dentro das margens laterais) */
+  --hero-indent: calc((100vw - 2 * var(--gutter)) / 2.15 * .05);
+
+  /* Faixa "Empresas que confiaram": título + espaço até os selos (medidas do Home Layout, 1366px) */
+  --clients-title: clamp(1.3rem, 2.17vw, 2.4rem);
+  --clients-gap: clamp(30px, 4.03vw, 66px);
+  --hero-to-pills: calc(20px + var(--clients-title) + var(--clients-gap));
+}
+
+
+/* Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--body);
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.page {
+  overflow: clip; /* corta nas laterais e no fim da página (cauda/asterisco saem cortados) */
+  position: relative;
+}
+
+.container {
+  padding-inline: var(--gutter);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--head);
+  font-weight: 800;
+  letter-spacing: -.045em;
+  line-height: 1;
+}
+
+
+/* Botões */
+.btn {
+  display: inline-block;
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: clamp(1.1rem, 1.65vw, 1.55rem);
+  line-height: 1;
+  padding: clamp(.65rem, .82vw, .9rem) clamp(.8rem, 1vw, 1.1rem);
+  border-radius: 4px;
+  transition: transform .2s, filter .2s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.btn--red {
+  background: var(--red);
+  color: var(--cream);
+}
+
+.btn--green {
+  background: var(--green);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 3px;
+}
+
+
+/* Header */
+.topbar {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-top: 40px;
+}
+
+/* Quadradinhos (logo, WhatsApp, Instagram): mesma altura da barra do menu */
+.brand {
+  width: 80px;
+  height: 72px;
+  background: var(--dark);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  margin-left: 2.6%;
+}
+
+/* Imagens dentro dos quadradinhos e dos selos:
+   --glyph = tamanho que o desenho VISÍVEL deve ter (medido no Home Layout).
+   O script.js mede a margem transparente do PNG (--trim) e amplia a imagem para compensar,
+   assim o desenho fica do tamanho da referência, bem perto da borda do quadrado. */
+.brand img,
+.icon-btn img,
+.pill img {
+  max-width: none;
+  width: calc(var(--glyph) * var(--trim, var(--trim-fb, 1)));
+  transform: translate(calc(var(--tx, 0) * -100%), calc(var(--ty, 0) * -100%));
+}
+
+.brand img {
+  --glyph: 41px;
+  --trim-fb: 1.25; /* usado só se o navegador não deixar o script medir a imagem */
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 72px;
+  background: var(--dark);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--cream);
+  font-weight: 500;
+  font-size: 1.15rem;
+  flex: 0 1 auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.nav a {
+  padding: 6px 16px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.nav a.is-active {
+  background: var(--green);
+  color: var(--ink);
+}
+
+.nav a:not(.is-active):hover {
+  background: rgba(255, 255, 255, .1);
+}
+
+.icon-btn {
+  width: 80px;
+  height: 72px;
+  background: var(--dark);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  transition: transform .2s;
+}
+
+.icon-btn:hover {
+  transform: translateY(-2px);
+}
+
+.icon-btn img {
+  --glyph: 40px;
+  --trim-fb: 1.25;
+}
+
+
+/* Hero */
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  align-items: center;
+  min-height: 620px;
+  padding-top: 10px;
+}
+
+.hero__text {
+  position: relative;
+  z-index: 2;
+  left: 5%;
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 5.6vw, 4.9rem);
+  color: var(--red);
+  margin-bottom: 18px;
+}
+
+.hero p {
+  font-size: clamp(1.15rem, 1.9vw, 1.6rem);
+  max-width: 21ch;
+  margin-bottom: 28px;
+  line-height: 1.2;
+  letter-spacing: -.01em;
+}
+
+.hero__camera {
+  position: relative;
+  z-index: 1;
+  width: 125%;
+  max-width: none;
+  margin-left: -20%;
+  margin-top: -30px;
+}
+
+.shark {
+  position: absolute;
+  bottom: 0;
+  z-index: 0;
+  width: clamp(170px, 23vw, 330px);
+}
+
+.shark--l {
+  left: calc(-1 * var(--gutter));
+  bottom: -30px;
+}
+
+.shark--r {
+  right: calc(-1 * var(--gutter));
+  bottom: -30px;
+}
+
+
+/* Clientes */
+.clients {
+  padding: 20px 0 40px;
+  position: relative;
+  z-index: 2;
+}
+
+.clients__title {
+  color: var(--red);
+  text-align: center;
+  font-family: var(--head-wide);
+  font-weight: 800;
+  font-stretch: 110%;
+  font-size: var(--clients-title);
+  margin-bottom: var(--clients-gap);
+  padding-inline: 20px;
+}
+
+.pill {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dark);
+  height: 70px;
+  border-radius: 12px;
+  margin-right: 18px;
+}
+
+.pill img {
+  height: auto;
+  max-width: none;
+}
+
+/* Largura do selo e do logo (conforme o Home Layout) */
+.pill--script { width: 156px; }
+.pill--script img { --glyph: 126px; }
+
+.pill--inklua { width: 152px; }
+.pill--inklua img { --glyph: 116px; }
+
+.pill--gastro { width: 215px; }
+.pill--gastro img { --glyph: 188px; }
+
+.pill--bistro { width: 103px; }
+.pill--bistro img { --glyph: 66px; }
+
+.pill--mb { width: 103px; }
+.pill--mb img { --glyph: 68px; }
+
+.pill--bossa { width: 149px; }
+.pill--bossa img { --glyph: 118px; }
+
+.pill--karina { width: 108px; }
+.pill--karina img { --glyph: 81px; }
+
+
+/* Sobre */
+.about {
+  position: relative;
+  background: var(--red);
+  color: var(--cream);
+  margin-top: 40px;
+  padding: 0 0 70px;
+}
+
+.about__inner {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.about__visual {
+  position: relative;
+  margin-top: -110px;
+  margin-left: calc(-1 * var(--gutter) * .6);
+}
+
+.about__notebook {
+  width: 100%;
+  max-width: none;
+  position: relative;
+  z-index: 1;
+}
+
+.about__text {
+  text-align: right;
+  padding-top: 70px;
+}
+
+.about h2 {
+  font-family: var(--head-wide);
+  font-weight: 800;
+  font-stretch: 110%;
+  font-size: clamp(2.4rem, 4.5vw, 4rem);
+  margin-bottom: 26px;
+}
+
+.about p {
+  font-size: clamp(1.05rem, 1.7vw, 1.5rem);
+  line-height: 1.2;
+  margin-left: auto;
+  max-width: 22em;
+  margin-bottom: 40px;
+  letter-spacing: -.01em;
+}
+
+.about em {
+  font-style: italic;
+}
+
+.ast {
+  position: absolute;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.ast--notebook {
+  width: 20%;
+  left: 54%;
+  top: 12%;
+  z-index: 0;
+}
+
+.ast--about-tr {
+  width: clamp(110px, 15vw, 200px);
+  right: -2%;
+  top: -95px;
+}
+
+.ast--about-bl {
+  width: clamp(90px, 10vw, 140px);
+  left: -1%;
+  bottom: -70px;
+}
+
+
+/* Trabalhos */
+.works {
+  padding: 90px 0 44px;
+  position: relative;
+}
+
+.works__title {
+  color: var(--red);
+  text-align: right;
+  font-size: clamp(2.2rem, 3.6vw, 3.2rem);
+  margin-bottom: 36px;
+}
+
+.marquee {
+  overflow: hidden;
+  width: 100%;
+}
+
+.marquee__track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+}
+
+.card {
+  position: relative;
+  flex: none;
+  width: min(514px, 82vw);
+  aspect-ratio: 514 / 286;
+  margin-right: 60px;
+  background: var(--dark);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.card > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Ajustes das capas: Folder Inklua e Social Media Gastrofood */
+
+/* Folder Inklua: a imagem tem ~24% transparente à direita (aparecia o fundo escuro do card).
+   A imagem é esticada 31,6% e cortada na borda da parte preenchida, então a arte
+   ocupa o retângulo inteiro. Se trocar a imagem por uma já cortada, apague este bloco. */
+.card:has(.card__overlay.teal) > img {
+  width: 131.6%;
+  max-width: none;
+  object-fit: cover;
+  object-position: left center;
+  clip-path: inset(0 24% 0 0 round 8px);
+}
+
+/* Social Media Gastrofood: capa vertical cortada no card.
+   Mostra a parte de baixo da capa (a moça e a hashtag).
+   Ajuste a % para subir/descer (0% = topo da imagem, 100% = base). */
+.card:has(.card__overlay.pink) > img {
+  object-fit: cover;
+  object-position: 50% 94%;
+}
+
+.card__overlay.teal h3,
+.card__overlay.teal p,
+.card__overlay.pink h3,
+.card__overlay.pink p {
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .3);
+}
+
+.card__overlay {
+  position: absolute;
+  inset: 18px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  padding: 20px 26px 36px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, .05), rgba(0, 0, 0, .55) 100%);
+}
+
+.card__overlay.red {
+  background: linear-gradient(180deg, rgba(80, 0, 0, .25), rgba(120, 10, 10, .75));
+}
+
+.card__overlay.blue {
+  background: linear-gradient(180deg, rgba(10, 90, 180, .15), rgba(5, 40, 110, .85));
+}
+
+.card__overlay.teal {
+  background: linear-gradient(180deg, rgba(0, 60, 60, .25), rgba(0, 60, 60, .8));
+}
+
+.card__overlay.pink {
+  /* mais leve que os outros cards para a moça aparecer por baixo do texto */
+  background: linear-gradient(180deg, rgba(180, 10, 100, .1), rgba(130, 0, 70, .6));
+}
+
+.card__overlay.cream {
+  background: linear-gradient(180deg, rgba(40, 30, 0, .2), rgba(30, 20, 0, .8));
+}
+
+.card h3 {
+  font-size: clamp(1.4rem, 2.3vw, 1.9rem);
+  margin-bottom: 12px;
+}
+
+.card p {
+  font-size: clamp(.72rem, 1.1vw, .86rem);
+  line-height: 1.25;
+  max-width: 42ch;
+}
+
+.card__go {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  font-size: .7rem;
+  display: grid;
+  place-items: center;
+}
+
+.works__nav {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.arrow {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--cream);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: transform .2s;
+}
+
+.arrow:hover {
+  transform: scale(1.1);
+}
+
+
+/* Botão "ver todos os projetos" (home) */
+.works__all {
+  text-align: center;
+  margin-top: 28px;
+}
+
+
+/* CTA */
+.cta {
+  /* medidas em vw a partir do Home Layout (1366px), para escalar igual em qualquer tela */
+  --tw: clamp(110px, 18.2vw, 480px);   /* largura das caudas */
+  --aw: clamp(80px, 11vw, 300px);      /* largura dos asteriscos */
+  position: relative;
+  background: var(--dark);
+  color: var(--green);
+  text-align: center;
+  padding: clamp(40px, 3.7vw, 80px) 20px clamp(40px, 3.4vw, 72px);
+  margin-top: 0;
+}
+
+.cta h2 {
+  position: relative;
+  z-index: 2;
+  font-size: clamp(2.4rem, 5vw, 6rem);
+  max-width: 9em;
+  margin: 0 auto clamp(24px, 2.7vw, 52px);
+}
+
+.cta .btn {
+  position: relative;
+  z-index: 2;
+}
+
+.tail {
+  position: absolute;
+  top: 0;              /* começa no topo da parte escura */
+  width: var(--tw);
+  height: 100%;        /* vai até o fim da parte escura; para deixar uma folga embaixo use ex.: calc(100% - 8px) */
+  object-fit: fill;    /* estica a cauda na vertical sem mexer na largura */
+  max-width: none;
+  z-index: 1;
+}
+
+.tail--l {
+  left: calc(var(--tw) * -.27);
+}
+
+.tail--r {
+  right: calc(var(--tw) * -.24);
+}
+
+.ast--cta-tl {
+  width: var(--aw);
+  left: 11vw;
+  top: calc(var(--aw) * -.5);
+}
+
+.ast--cta-br {
+  width: var(--aw);
+  right: 17.5vw;
+  bottom: calc(var(--aw) * -.45);
+  z-index: 3;
+}
+
+
+/* Desktop (a partir de 1001px): medidas tiradas do Home Layout (1366px), em vw para escalar */
+@media (min-width: 1001px) {
+
+  /* Header: proporções medidas no print de referência (tudo em vw, escala junto com a tela) */
+  .topbar {
+    --box-w: clamp(56px, 5.2vw, 71px);     /* largura dos quadradinhos */
+    --box-h: clamp(52px, 4.83vw, 66px);    /* altura dos quadradinhos e do menu */
+    --hgap: clamp(14px, 1.8vw, 32px);      /* espaço igual entre logo → menu → WhatsApp → Instagram */
+    gap: 0;
+    justify-content: center;               /* o conjunto todo fica no centro da página */
+  }
+
+  .brand,
+  .icon-btn {
+    width: var(--box-w);
+    height: var(--box-h);
+  }
+
+  /* Logo alinhada com o "P" do "Prazer": ambos usam o mesmo --hero-indent */
+  .brand {
+    margin-left: 0;
+  }
+
+  /* desenho visível = 57,7% (logo) e 56,3% (ícones) do quadradinho, como no Home Layout */
+  .brand img {
+    --glyph: calc(var(--box-w) * .577);
+  }
+
+  .icon-btn img {
+    --glyph: calc(var(--box-w) * .563);
+  }
+
+  /* menu colado na logo, com a mesma distância (--hgap) que existe entre WhatsApp e Instagram;
+     o tamanho do menu continua o mesmo e os ícones ficam na ponta direita */
+  .nav {
+    flex: 0 0 auto;   /* o menu tem só o tamanho dos itens, sem sobra */
+    width: auto;
+    height: var(--box-h);
+    justify-content: center;   /* itens agrupados no centro do menu */
+    gap: clamp(6px, 1vw, 20px);   /* espaço entre os itens: aumente/diminua aqui */
+    align-items: center;
+    padding: 0 clamp(8px, .9vw, 14px);   /* padding igual dos dois lados */
+    font-size: clamp(.95rem, 1.6vw, 1.375rem);
+    margin-left: var(--hgap);
+    margin-right: 0;
+  }
+
+  /* mesmo espaçamento (--hgap) entre menu → WhatsApp → Instagram */
+  .nav + .icon-btn {
+    margin-left: var(--hgap);
+  }
+
+  .nav a {
+    display: flex;
+    align-items: center;
+    height: clamp(36px, 3.3vw, 45px);
+    padding: 0 clamp(12px, 1.2vw, 16px);
+  }
+
+  .icon-btn + .icon-btn {
+    margin-left: var(--hgap);
+  }
+
+  /* no desktop o WhatsApp não aparece no cabeçalho (continua no menu lateral das telas menores) */
+  .topbar .icon-btn[aria-label="WhatsApp"] {
+    display: none;
+  }
+
+  /* Hero mais baixo, como no Home Layout (assim o título das empresas e os selos sobem para o lugar certo) */
+  .hero {
+    min-height: clamp(460px, 39.5vw, 700px);
+  }
+
+  .hero__text {
+    top: -1vw;
+    left: var(--hero-indent);
+  }
+
+  /* Câmera maior e mais perto do texto (os asteriscos fazem parte da imagem e acompanham) */
+  .hero__camera {
+    top: 1.25vw;
+    width: 138%;
+    margin-left: -34%;
+  }
+
+  /* Tubarões do topo: maiores, com a cauda inteira à mostra e a base alinhada aos selos das empresas */
+  .shark {
+    width: 38.7vw;
+    bottom: calc(-1 * var(--hero-to-pills) - 4px);
+  }
+
+  .shark--l {
+    left: -10.5vw;
+  }
+
+  .shark--r {
+    right: -10.5vw;
+  }
+
+  /* Sobre: o notebook sai da faixa vermelha (começa acima e termina abaixo dela) */
+  .about {
+    margin-top: 38px;
+    padding: 0;
+  }
+
+  .about__inner {
+    grid-template-columns: 1fr;
+    padding-top: clamp(44px, 5.55vw, 100px);
+    padding-bottom: clamp(40px, 5.05vw, 92px);
+  }
+
+  .about__visual {
+    display: contents; /* notebook e asterisco passam a se posicionar em relação à faixa inteira */
+  }
+
+  /* left/top = centro do notebook visível; o translate compensa a margem transparente do PNG */
+  .about__notebook {
+    position: absolute;
+    width: 85.7vw;
+    left: 31.84vw;
+    top: 21.92vw;
+    transform: translate(-47.74%, -50%);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* asterisco que aparece por trás do notebook */
+  .ast--notebook {
+    width: 17.1vw;
+    left: 41.14vw;
+    top: 23.6vw;
+    transform: translate(-51.1%, -50%);
+    z-index: 0;
+  }
+
+  .about__text {
+    position: relative;
+    z-index: 3;
+    justify-self: end;
+    padding-top: 0;
+  }
+
+  .about h2 {
+    font-size: clamp(2.4rem, 4.9vw, 5.4rem);
+    max-width: 8.3em;
+    margin: 0 0 clamp(22px, 2.64vw, 50px) auto;
+    padding-right: .06em; /* compensa o espaçamento negativo da última letra */
+  }
+
+  .about p {
+    font-size: clamp(1.05rem, 1.9vw, 1.9rem);
+    max-width: 19.7em;
+    letter-spacing: -.006em;
+    margin-bottom: clamp(24px, 3.45vw, 64px);
+  }
+
+  .ast--about-tr {
+    width: clamp(110px, 15vw, 200px);
+    right: -5.8vw;
+    top: -88px;
+  }
+
+  .ast--about-bl {
+    width: clamp(110px, 15vw, 200px);
+    left: -6.5vw;
+    bottom: -91px;
+  }
+}
+
+
+/* Tablet */
+@media (max-width: 1000px) {
+  .topbar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .nav {
+    order: 3;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    justify-content: space-between;
+    font-size: 1rem;
+    overflow-x: auto;
+  }
+
+  .brand {
+    margin-right: auto;
+    height: 62px;
+    width: 68px;
+  }
+
+  .brand img {
+    --glyph: 36px;
+  }
+
+  .icon-btn {
+    width: 64px;
+    height: 62px;
+  }
+
+  .icon-btn img {
+    --glyph: 35px;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    text-align: center;
+    justify-items: center;
+    padding-bottom: 60px;
+  }
+
+  .hero p {
+    margin-inline: auto;
+    max-width: 24ch;
+  }
+
+  .hero__camera {
+    width: min(110%, 720px);
+    margin: 10px 0 0;
+  }
+
+  .about__inner {
+    grid-template-columns: 1fr;
+  }
+
+  .about__visual {
+    margin: -90px auto 0;
+    width: min(100%, 640px);
+  }
+
+  .about__text {
+    text-align: center;
+    padding-top: 0;
+  }
+
+  .about p {
+    margin-inline: auto;
+  }
+}
+
+
+/* Mobile */
+@media (max-width: 600px) {
+  :root {
+    --gutter: 18px;
+  }
+
+  .topbar {
+    padding-top: 20px;
+  }
+
+  .nav a {
+    padding: 6px 10px;
+    font-size: .88rem;
+  }
+
+  .nav {
+    padding: 8px;
+    gap: 2px;
+  }
+
+  .pill {
+    zoom: .85;
+  }
+
+  .card {
+    margin-right: 24px;
+    padding: 12px;
+  }
+
+  .card__overlay {
+    inset: 12px;
+    padding: 12px 14px 28px;
+  }
+
+  .card p {
+    font-size: .68rem;
+  }
+
+  .shark {
+    opacity: .9;
+  }
+
+  .about {
+    padding-bottom: 50px;
+  }
+
+  .works {
+    padding-top: 70px;
+  }
+}
+
+
+/* ==========================================================
+   Animações
+   ========================================================== */
+:root {
+  --ease: cubic-bezier(.22, 1, .36, 1);   /* sai rápido e assenta devagar */
+}
+
+/* Botões: sobem, ganham sombra colorida e um brilho passa por cima */
+.btn {
+  position: relative;
+  overflow: hidden;
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease);
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, .45) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform .7s var(--ease);
+  pointer-events: none;
+}
+
+.btn:hover {
+  transform: translateY(-4px);
+  filter: none;
+  box-shadow: 0 12px 22px -8px rgba(0, 0, 0, .45);
+}
+
+.btn--red:hover   { box-shadow: 0 12px 24px -8px rgba(183, 21, 21, .65); }
+.btn--green:hover { box-shadow: 0 12px 24px -8px rgba(198, 227, 132, .75); }
+
+.btn:hover::after {
+  transform: translateX(120%);
+}
+
+.btn:active {
+  transform: translateY(-1px) scale(.97);
+  transition-duration: .1s;
+}
+
+/* Menu, logo e ícones do topo */
+.nav a {
+  transition: background-color .3s var(--ease), color .3s var(--ease), transform .3s var(--ease);
+}
+
+.nav a:not(.is-active):hover {
+  transform: translateY(-2px);
+}
+
+.brand,
+.icon-btn {
+  transition: transform .4s var(--ease), background-color .3s var(--ease);
+}
+
+.brand:hover,
+.icon-btn:hover {
+  transform: translateY(-4px) rotate(-4deg);
+  background-color: #2f2f2f;
+}
+
+.brand:active,
+.icon-btn:active {
+  transform: scale(.94);
+}
+
+/* Selos das empresas */
+.clients .marquee {
+  padding-block: 8px;   /* folga para o selo subir sem ser cortado */
+  margin-block: -8px;
+}
+
+.pill {
+  transition: transform .4s var(--ease), background-color .3s var(--ease);
+}
+
+.pill:hover {
+  transform: translateY(-4px) scale(1.04);
+  background-color: #2f2f2f;
+}
+
+/* Cards dos trabalhos */
+.marquee--works {
+  padding: 14px 0 38px;   /* folga para o card subir e a sombra aparecer */
+  margin: -14px 0 -38px;
+}
+
+.card {
+  transition: transform .5s var(--ease), box-shadow .5s var(--ease);
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 24px 34px -14px rgba(0, 0, 0, .5);
+}
+
+.card__go {
+  transition: scale .4s var(--ease), background-color .3s var(--ease), color .3s var(--ease);
+}
+
+.card:hover .card__go {
+  scale: 1.4;
+  background: var(--green);
+  color: var(--ink);
+}
+
+/* Setas do carrossel */
+.arrow {
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease);
+}
+
+.arrow:hover {
+  transform: scale(1.15);
+  box-shadow: 0 6px 14px -4px rgba(183, 21, 21, .55);
+}
+
+#prev:hover { transform: translateX(-3px) scale(1.15); }
+#next:hover { transform: translateX(3px) scale(1.15); }
+
+.arrow:active {
+  transform: scale(.9);
+}
+
+/* Entrada ao rolar (a classe js-reveal e os data-reveal são colocados pelo script.js) */
+.js-reveal [data-reveal] {
+  --rx: 0px;
+  --ry: 36px;
+  --rs: 1;
+  opacity: 0;
+  translate: var(--rx) var(--ry);
+  scale: var(--rs);
+  transition:
+    opacity .9s var(--ease) var(--d, 0s),
+    translate .9s var(--ease) var(--d, 0s),
+    scale .9s var(--ease) var(--d, 0s);
+}
+
+.js-reveal [data-reveal="down"]  { --ry: -26px; }
+.js-reveal [data-reveal="left"]  { --rx: -70px; --ry: 0px; }
+.js-reveal [data-reveal="right"] { --rx: 70px;  --ry: 0px; }
+.js-reveal [data-reveal="zoom"]  { --ry: 0px;   --rs: .85; }
+.js-reveal [data-reveal="fade"]  { --ry: 0px; }
+
+.js-reveal [data-reveal].is-in {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+
+/* Movimento suave de fundo (só para quem não pediu menos movimento) */
+@media (prefers-reduced-motion: no-preference) {
+  .hero__camera {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .ast {
+    animation: sway 7s ease-in-out infinite alternate;
+  }
+
+  .ast--about-bl,
+  .ast--cta-br {
+    animation-delay: -3.5s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-12px); }
+  }
+
+  @keyframes sway {
+    from { rotate: -6deg; }
+    to   { rotate: 6deg; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: .01ms !important;
+    animation: none !important;
+  }
+}
+
+
+/* ==========================================================
+   Página de galeria (galeria.html)
+   ========================================================== */
+
+/* Topo da página: texto + filtros à esquerda, moldura com a foto à direita */
+.g-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+  padding-top: clamp(8px, 1.2vw, 20px);
+  padding-bottom: clamp(0px, 1vw, 16px);
+}
+
+/* Tubarão desenhado na borda esquerda (galeria/Tubarão lado esquerdo Meus Trabalhos bloco 1.png): atrás de tudo, cortado pela lateral */
+.g-hero__shark {
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  top: -1.5vw;
+  width: min(40vw, 640px);
+  max-width: none;
+  pointer-events: none;
+}
+
+/* mesmo recuo da logo do cabeçalho, para título e logo ficarem alinhados */
+.g-hero__text {
+  position: relative;
+  z-index: 2;
+  margin-left: var(--hero-indent);
+}
+
+.g-hero h1 {
+  font-size: clamp(2.6rem, 4.4vw, 4.6rem);
+  color: var(--red);
+  margin-bottom: 18px;
+  white-space: nowrap;
+}
+
+.g-hero p {
+  font-size: clamp(1.05rem, 1.75vw, 1.5rem);
+  line-height: 1.2;
+  letter-spacing: -.01em;
+  max-width: 22em;
+}
+
+/* Moldura (galeria/Moldura Meus Trabalhos bloco 1.png): a imagem tem margem transparente,
+   por isso passa um pouco da coluna para a parte visível ficar alinhada com o resto da página */
+.g-hero__frame {
+  position: relative;
+  z-index: 1;
+  justify-self: end;
+  width: 134%;
+  max-width: none;
+  margin: 2.5vw -14% -1vw 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .g-hero__frame {
+    animation: float 6s ease-in-out infinite;
+  }
+}
+
+/* Filtros: pílulas escuras separadas, como na referência */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: clamp(24px, 2.8vw, 42px);
+}
+
+.filters button {
+  font: 700 clamp(.85rem, 1vw, 1rem) var(--body);
+  color: var(--cream);
+  background: var(--dark);
+  border: 0;
+  border-radius: 8px;
+  padding: .8em 1.15em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color .3s var(--ease), color .3s var(--ease), transform .3s var(--ease);
+}
+
+.filters button:not(.is-active):hover {
+  background: #2f2f2f;
+  transform: translateY(-2px);
+}
+
+.filters button.is-active {
+  background: var(--green);
+  color: var(--ink);
+}
+
+
+/* Cards dos projetos (usados no carrossel) */
+.proj {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--dark);
+  color: var(--cream);
+  border-radius: 14px;
+  padding: 14px 14px 12px;
+  transition: transform .5s var(--ease), box-shadow .5s var(--ease);
+}
+
+.proj[hidden] { display: none; }
+
+.proj:hover,
+.proj:focus-visible {
+  translate: 0 -10px;
+  box-shadow: 0 24px 34px -14px rgba(0, 0, 0, .5);
+}
+
+.proj__media {
+  position: relative;
+  aspect-ratio: 514 / 340;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #333;
+}
+
+.proj__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--pos, 50% 50%);
+  transition: transform .8s var(--ease);
+}
+
+.proj:hover .proj__media img,
+.proj:focus-visible .proj__media img {
+  transform: scale(1.06);
+}
+
+/* Camada colorida com o resumo, aparece ao passar o mouse (mesmas cores dos cards da home) */
+.proj__hover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px 26px;
+  color: #fff;
+  font-size: clamp(.78rem, 1vw, .9rem);
+  line-height: 1.25;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .3);
+  opacity: 0;
+  transition: opacity .45s var(--ease);
+}
+
+.proj:hover .proj__hover,
+.proj:focus-visible .proj__hover {
+  opacity: 1;
+}
+
+.proj__hover span { max-width: 38ch; }
+
+.proj--red  .proj__hover { background: linear-gradient(180deg, rgba(80, 0, 0, .35), rgba(120, 10, 10, .85)); }
+.proj--blue .proj__hover { background: linear-gradient(180deg, rgba(10, 90, 180, .25), rgba(5, 40, 110, .9)); }
+.proj--teal .proj__hover { background: linear-gradient(180deg, rgba(0, 60, 60, .35), rgba(0, 60, 60, .88)); }
+.proj--pink .proj__hover { background: linear-gradient(180deg, rgba(180, 10, 100, .3), rgba(130, 0, 70, .85)); }
+.proj--cream .proj__hover { background: linear-gradient(180deg, rgba(40, 30, 0, .3), rgba(30, 20, 0, .88)); }
+.proj--orange .proj__hover { background: linear-gradient(180deg, rgba(120, 50, 0, .3), rgba(90, 35, 0, .9)); }
+
+.proj__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 6px;
+}
+
+.proj__tag {
+  display: block;
+  color: var(--green);
+  font-weight: 600;
+  font-size: .8rem;
+  letter-spacing: .02em;
+  margin-bottom: 6px;
+}
+
+.proj h3 {
+  color: var(--cream);
+  font-size: clamp(1.25rem, 1.8vw, 1.6rem);
+}
+
+.proj__go {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--cream);
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  transition: scale .4s var(--ease), background-color .3s var(--ease), color .3s var(--ease);
+}
+
+.proj:hover .proj__go,
+.proj:focus-visible .proj__go {
+  scale: 1.2;
+  background: var(--green);
+  color: var(--ink);
+}
+
+/* ==========================================================
+   Carrossel de projetos
+   O card do meio é o ativo; os vizinhos ficam menores, inclinados e mais escuros.
+   O JS só troca as variáveis --d (posição em relação ao meio) e --a (distância).
+   ========================================================== */
+.car {
+  position: relative;
+  padding: 0 0 clamp(70px, 8vw, 120px);
+}
+
+.car__stage {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  padding-block: clamp(24px, 2.6vw, 40px) clamp(28px, 3.4vw, 52px);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+
+.car__stage.is-drag { cursor: grabbing; }
+
+.car__stage.is-refresh { animation: carin .6s var(--ease); }
+
+@keyframes carin {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.car .proj {
+  grid-area: 1 / 1;
+  width: min(560px, 76vw);
+  z-index: calc(10 - var(--a, 0));
+  transform:
+    translateX(calc(var(--d, 0) * 62%))
+    rotate(calc(var(--d, 0) * 2.2deg))
+    scale(calc(1 - var(--a, 0) * .13));
+  filter: brightness(calc(1 - var(--a, 0) * .2));
+  transition:
+    transform .85s var(--ease),
+    opacity .6s var(--ease),
+    filter .6s var(--ease),
+    translate .5s var(--ease),
+    box-shadow .5s var(--ease);
+  cursor: pointer;
+}
+
+.car .proj.is-active {
+  box-shadow: 0 34px 50px -20px rgba(0, 0, 0, .6);
+}
+
+.car .proj.is-far {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* o resumo ao passar o mouse só aparece no card do meio */
+.car .proj:not(.is-active) .proj__hover { opacity: 0; }
+
+.car .proj__media img { -webkit-user-drag: none; }
+
+/* controles: setas + contador + bolinhas */
+.car__ui {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 3vw, 40px);
+}
+
+.car__btn {
+  flex: none;
+  width: 54px;
+  height: 54px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--cream);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .35s var(--ease), background-color .3s var(--ease), color .3s var(--ease), box-shadow .35s var(--ease);
+}
+
+.car__btn:hover {
+  background: var(--green);
+  color: var(--ink);
+  box-shadow: 0 8px 18px -6px rgba(198, 227, 132, .8);
+}
+
+#c-prev:hover { transform: translateX(-4px) scale(1.08); }
+#c-next:hover { transform: translateX(4px) scale(1.08); }
+
+.car__btn:active { transform: scale(.92); }
+
+.car__btn:disabled {
+  opacity: .35;
+  pointer-events: none;
+}
+
+.car__mid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 120px;
+}
+
+.car__count {
+  color: var(--red);
+  font: 800 1.1rem var(--head);
+  letter-spacing: .08em;
+}
+
+.car__dots {
+  display: flex;
+  gap: 8px;
+}
+
+.car__dots button {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(34, 34, 34, .25);
+  cursor: pointer;
+  transition: width .4s var(--ease), background-color .3s var(--ease);
+}
+
+.car__dots button:hover { background: rgba(34, 34, 34, .5); }
+
+.car__dots button.is-active {
+  width: 30px;
+  background: var(--red);
+}
+
+
+
+/* ==========================================================
+   Detalhe do projeto (janela)
+   ========================================================== */
+html.no-scroll { overflow: hidden; }
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: clamp(10px, 2.5vw, 32px);
+}
+
+.modal[hidden] { display: none; }
+
+.modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 20, 20, .72);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity .4s var(--ease);
+}
+
+.modal__panel {
+  position: relative;
+  width: min(1120px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: clamp(18px, 2.4vw, 36px);
+  background: var(--dark);
+  color: var(--cream);
+  border-radius: 14px;
+  padding: clamp(14px, 1.6vw, 22px);
+  box-shadow: 0 40px 80px -20px rgba(0, 0, 0, .6);
+  opacity: 0;
+  transform: translateY(30px) scale(.97);
+  transition: opacity .45s var(--ease), transform .55s var(--ease);
+}
+
+.modal.is-open .modal__backdrop { opacity: 1; }
+
+.modal.is-open .modal__panel {
+  opacity: 1;
+  transform: none;
+}
+
+.modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 5;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--cream);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .4s var(--ease), background-color .3s var(--ease), color .3s var(--ease);
+}
+
+.modal__close:hover {
+  transform: rotate(90deg) scale(1.1);
+  background: var(--green);
+  color: var(--ink);
+}
+
+/* imagem grande */
+.modal__stage {
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg, #333);
+}
+
+.modal__stage img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity .35s var(--ease);
+}
+
+.modal__stage img.is-swap { opacity: 0; }
+
+.modal__thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.modal__thumbs button {
+  width: 84px;
+  height: 60px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #333;
+  cursor: pointer;
+  opacity: .65;
+  transition: opacity .3s var(--ease), border-color .3s var(--ease), transform .3s var(--ease);
+}
+
+.modal__thumbs button:hover { opacity: 1; transform: translateY(-2px); }
+
+.modal__thumbs button.is-active {
+  opacity: 1;
+  border-color: var(--green);
+}
+
+.modal__thumbs img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* espaço reservado quando o projeto ainda tem só a capa */
+.modal__thumbs .ph {
+  flex: 1;
+  min-height: 60px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 8px 14px;
+  border: 2px dashed rgba(255, 249, 234, .25);
+  border-radius: 6px;
+  color: rgba(255, 249, 234, .55);
+  font-size: .8rem;
+}
+
+/* texto */
+.modal__info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.chip {
+  display: inline-block;
+  background: var(--green);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: .8rem;
+  line-height: 1;
+  padding: 7px 10px;
+  border-radius: 4px;
+  margin-bottom: 18px;
+}
+
+.modal__info h2 {
+  color: var(--green);
+  font-size: clamp(2rem, 3.6vw, 3.1rem);
+  padding-right: 44px;
+  margin-bottom: 18px;
+}
+
+.modal__text p {
+  font-size: clamp(.95rem, 1.2vw, 1.05rem);
+  line-height: 1.4;
+  color: rgba(255, 249, 234, .92);
+}
+
+.modal__text p + p { margin-top: 12px; }
+
+.modal__text strong { color: var(--green); font-weight: 600; }
+
+.facts {
+  width: 100%;
+  margin: 22px 0 26px;
+}
+
+.facts div {
+  display: grid;
+  grid-template-columns: 7.5em 1fr;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px solid rgba(255, 249, 234, .18);
+}
+
+.facts div:last-child { border-bottom: 1px solid rgba(255, 249, 234, .18); }
+
+.facts dt {
+  color: var(--green);
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding-top: .2em;
+}
+
+.facts dd { font-size: .98rem; }
+
+/* anterior / próximo */
+.modal__nav {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 249, 234, .18);
+}
+
+.mnav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: 0;
+  color: var(--cream);
+  font: 600 .95rem var(--body);
+  cursor: pointer;
+  min-width: 0;
+}
+
+.mnav__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mnav:hover .arrow { transform: scale(1.15); box-shadow: 0 6px 14px -4px rgba(183, 21, 21, .55); }
+#m-prev:hover .arrow { transform: translateX(-3px) scale(1.15); }
+#m-next:hover .arrow { transform: translateX(3px) scale(1.15); }
+
+.modal__count {
+  color: var(--green);
+  font-weight: 600;
+  font-size: .9rem;
+  letter-spacing: .06em;
+}
+
+
+/* Tablet */
+@media (max-width: 1000px) {
+  .g-hero {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    row-gap: clamp(36px, 6vw, 64px);          /* espaço entre o texto/filtros e o quadro */
+    padding-top: clamp(28px, 5vw, 56px);      /* espaço entre o cabeçalho e o título */
+  }
+
+  .g-hero__text { margin-left: 0; }
+  .g-hero__shark { display: none; }   /* sem o tubarão a partir daqui (1000px para baixo) */
+  .g-hero h1 { white-space: normal; }
+  .g-hero p { margin-inline: auto; }
+  .filters { justify-content: center; }
+
+  .g-hero__frame {
+    justify-self: center;
+    width: min(100%, 640px);
+    margin: 0 0 clamp(4px, 1.2vw, 14px);   /* espaço entre o quadro e o carrossel */
+  }
+
+  .car .proj { width: min(480px, 70vw); }
+}
+
+/* janela em coluna única */
+@media (max-width: 800px) {
+  .modal__panel { grid-template-columns: 1fr; }
+  .modal__info { padding-top: 0; }
+  .modal__info h2 { padding-right: 0; }
+  .modal__close { top: 22px; right: 22px; }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .g-hero { padding-top: 24px; row-gap: 32px; }
+  .car .proj { width: 76vw; transform: translateX(calc(var(--d, 0) * 58%)) rotate(calc(var(--d, 0) * 2.2deg)) scale(calc(1 - var(--a, 0) * .13)); }
+  .car .proj[data-a="2"] { opacity: 0; pointer-events: none; }
+  .car__btn { width: 46px; height: 46px; }
+  .car__mid { min-width: 90px; }
+  .mnav__label { display: none; }
+  .facts div { grid-template-columns: 6.5em 1fr; }
+  /* no toque não existe hover: o resumo fica só na janela */
+  .proj__hover { display: none; }
+}
+
+
+/* ==========================================================
+   Menu lateral (sidebar)
+   O botão e o painel são criados pelo script.js.
+   ========================================================== */
+.menu-toggle { display: none; }
+
+html.menu-open { overflow: hidden; }
+
+.drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  visibility: hidden;
+  transition: visibility 0s linear .55s;   /* só some depois que o painel terminou de sair */
+}
+
+.drawer.is-open {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 20, 20, .6);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity .45s var(--ease);
+}
+
+.drawer.is-open .drawer__backdrop { opacity: 1; }
+
+.drawer__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(340px, 86vw);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 22px 28px;
+  background: var(--dark);
+  color: var(--cream);
+  overflow-y: auto;
+  box-shadow: -30px 0 60px -20px rgba(0, 0, 0, .5);
+  transform: translateX(100%);
+  transition: transform .55s var(--ease);
+}
+
+.drawer.is-open .drawer__panel { transform: none; }
+
+.drawer__close {
+  align-self: flex-end;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--cream);
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .4s var(--ease), background-color .3s var(--ease), color .3s var(--ease);
+}
+
+.drawer__close:hover {
+  transform: rotate(90deg) scale(1.08);
+  background: var(--green);
+  color: var(--ink);
+}
+
+.drawer__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 26px;
+}
+
+.drawer__nav a {
+  font: 800 1.55rem var(--head);
+  letter-spacing: -.03em;
+  padding: 14px 16px;
+  border-radius: 8px;
+  opacity: 0;
+  translate: 28px 0;
+  transition: opacity .3s var(--ease), translate .3s var(--ease), background-color .3s var(--ease), color .3s var(--ease);
+}
+
+.drawer.is-open .drawer__nav a {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity .6s var(--ease) calc(.15s + var(--i, 0) * .07s),
+    translate .6s var(--ease) calc(.15s + var(--i, 0) * .07s),
+    background-color .3s var(--ease),
+    color .3s var(--ease);
+}
+
+.drawer__nav a:hover { background: rgba(255, 255, 255, .1); }
+
+.drawer__nav a.is-active {
+  background: var(--green);
+  color: var(--ink);
+}
+
+/* WhatsApp e Instagram no fim do painel: ícone + nome, um embaixo do outro */
+.drawer__social {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 28px;
+}
+
+.drawer__btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 58px;
+  padding: 0 16px;
+  background: #333;
+  border-radius: 8px;
+  font: 600 1.05rem var(--body);
+  color: var(--cream);
+  transition: transform .4s var(--ease), background-color .3s var(--ease);
+}
+
+.drawer__btn:hover {
+  transform: translateX(-4px);
+  background: #3d3d3d;
+}
+
+.drawer__btn img {
+  --glyph: 30px;
+  --trim-fb: 1.25;
+  flex: none;
+  max-width: none;
+  width: calc(var(--glyph) * var(--trim, var(--trim-fb, 1)));
+  /* o ícone ocupa sempre um espaço de 34px, não importa a margem transparente da imagem */
+  margin-inline: calc((34px - var(--glyph) * var(--trim, var(--trim-fb, 1))) / 2);
+  transform: translate(calc(var(--tx, 0) * -100%), calc(var(--ty, 0) * -100%));
+}
+
+/* Tablet e celular: o menu do cabeçalho some e entra o botão do menu lateral */
+@media (max-width: 1000px) {
+  .topbar {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .topbar > .nav,
+  .topbar > .icon-btn { display: none; }
+
+  .brand { margin: 0; }
+
+  .menu-toggle {
+    flex: none;
+    display: grid;
+    place-content: center;
+    gap: 6px;
+    width: 68px;
+    height: 62px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: var(--dark);
+    cursor: pointer;
+    transition: transform .4s var(--ease), background-color .3s var(--ease);
+  }
+
+  .menu-toggle span {
+    display: block;
+    width: 28px;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--green);
+    transition: transform .4s var(--ease), width .4s var(--ease);
+  }
+
+  .menu-toggle span:nth-child(2) { width: 20px; margin-left: auto; }
+
+  .menu-toggle:hover { background: #2f2f2f; transform: translateY(-3px); }
+  .menu-toggle:hover span:nth-child(2) { width: 28px; }
+  .menu-toggle:active { transform: scale(.94); }
+}
+
+@media (max-width: 600px) {
+  .menu-toggle { width: 60px; height: 56px; }
+  .brand { width: 62px; height: 56px; }
+  .drawer__nav a { font-size: 1.4rem; }
+}
+
+/* ==========================================================
+   Projetos com seções (ex.: Inklua)
+   Janela: texto à esquerda; à direita a capa (ex.: folder) e a grade de posts.
+   Ao clicar num post, a grade dá lugar ao carrossel daquele post (slides separados).
+   ========================================================== */
+.modal__panel.is-sections {
+  width: min(1240px, 100%);
+  grid-template-columns: 1.35fr 1fr;      /* igual ao álbum: imagem/posts à esquerda, texto à direita */
+  column-gap: clamp(28px, 3.4vw, 52px);
+  padding: clamp(18px, 2.2vw, 32px);
+}
+
+.modal__panel.is-sections .modal__media { min-width: 0; }
+
+/* texto do projeto à direita, alinhado ao topo (como o banner) */
+.modal__panel.is-sections .modal__info {
+  align-self: start;
+  justify-content: flex-start;
+  padding: 44px 0 8px;
+}
+
+/* o anterior/próximo projeto sempre fica abaixo de tudo, com respiro */
+.modal__nav { margin-top: clamp(12px, 1.6vw, 24px); }
+
+.secs[hidden],
+#m-simple[hidden],
+.secs__index[hidden],
+.secs__viewer[hidden] { display: none; }
+
+/* com seções não há espaço reservado para "mais imagens" */
+.so-capa .modal__thumbs { display: none; }
+
+/* ---- grade de posts (estilo perfil do Instagram) ---- */
+.secs__index { margin-top: clamp(32px, 3.6vw, 52px); }
+
+.secs__sub {
+  font: 800 clamp(1.3rem, 2vw, 1.7rem) var(--head);
+  letter-spacing: -.04em;
+  color: var(--green);
+}
+
+.secs__hint {
+  margin: 8px 0 22px;
+  font-size: .88rem;
+  color: rgba(255, 249, 234, .6);
+}
+
+.posts {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 24px 20px;
+}
+
+.posts button {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0;
+  text-align: left;
+  color: var(--cream);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.post__img {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #333;
+  box-shadow: 0 0 0 2px transparent;
+  transition: transform .45s var(--ease), box-shadow .45s var(--ease);
+}
+
+.post__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .8s var(--ease);
+}
+
+/* ícone de carrossel no canto, como no Instagram */
+.post__icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(20, 20, 20, .6);
+  color: #fff;
+}
+
+/* mostra que é clicável */
+.post__go {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--red);
+  color: var(--cream);
+  font-size: .95rem;
+  transition: scale .4s var(--ease), background-color .3s var(--ease), color .3s var(--ease);
+}
+
+.posts button:hover .post__img,
+.posts button:focus-visible .post__img {
+  transform: translateY(-5px);
+  box-shadow: 0 0 0 2px var(--green), 0 18px 26px -12px rgba(0, 0, 0, .6);
+}
+
+.posts button:hover .post__img img { transform: scale(1.05); }
+
+.posts button:hover .post__go,
+.posts button:focus-visible .post__go {
+  scale: 1.2;
+  background: var(--green);
+  color: var(--ink);
+}
+
+.post__cap { display: flex; flex-direction: column; gap: 5px; padding: 0 2px; }
+.post__cap strong { font: 700 .88rem/1.2 var(--body); }
+.post__cap small { font-size: .76rem; color: var(--green); font-weight: 600; letter-spacing: .02em; }
+
+/* ---- carrossel do post aberto ---- */
+.secs__head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.secs__back { flex: none; }
+
+.secs__head h3 {
+  color: var(--green);
+  font-size: clamp(1.3rem, 2vw, 1.8rem);
+  min-width: 0;
+}
+
+.secs__desc {
+  font-size: .9rem;
+  line-height: 1.3;
+  color: rgba(255, 249, 234, .85);
+  max-width: 62ch;
+  margin-bottom: 26px;
+}
+
+/* com o post aberto o anterior/próximo projeto some, para o post caber inteiro na tela */
+.modal__panel.is-viewing .modal__nav { display: none; }
+
+/* post aberto: moldura 3:4 com um slide por vez, como no Instagram.
+   Os slides ficam colados, então carrosséis panorâmicos continuam de um slide pro outro ao deslizar. */
+.secs__viewer {
+  /* altura do post = altura da tela menos topo, rodapé e margens, para sempre caber inteiro (ajuste o 250px) */
+  --sh: clamp(260px, calc(100vh - 250px), 720px);
+  --sh: clamp(260px, calc(100dvh - 250px), 720px);
+}
+
+/* palco: seta + post + seta, tudo centralizado na coluna */
+.secs__stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2vw, 26px);
+}
+
+.secs__frame {
+  position: relative;
+  flex: 0 1 calc(var(--sh) * var(--rn, .75));
+  min-width: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #333;
+  box-shadow: 0 24px 40px -20px rgba(0, 0, 0, .7);
+}
+
+.secs__strip {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.secs__strip::-webkit-scrollbar { display: none; }
+
+.secs__strip.is-refresh { animation: carin .5s var(--ease); }
+
+.secs__strip img {
+  flex: none;
+  width: 100%;
+  aspect-ratio: var(--rn, .75);
+  object-fit: cover;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  -webkit-user-drag: none;
+}
+
+/* contador no canto (1/6) */
+.secs__badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(20, 20, 20, .65);
+  color: #fff;
+  font: 600 .78rem var(--body);
+  letter-spacing: .04em;
+  pointer-events: none;
+}
+
+/* setas redondas, fora da moldura */
+.igbtn {
+  flex: none;
+  width: 50px;
+  height: 50px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--cream);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity .3s var(--ease), transform .35s var(--ease), background-color .3s var(--ease), color .3s var(--ease), box-shadow .35s var(--ease);
+}
+
+.igbtn:hover {
+  background: var(--green);
+  color: var(--ink);
+  box-shadow: 0 8px 18px -6px rgba(198, 227, 132, .8);
+}
+
+#s-prev:hover { transform: translateX(-4px) scale(1.08); }
+#s-next:hover { transform: translateX(4px) scale(1.08); }
+.igbtn:active { transform: scale(.92); }
+.igbtn.is-off { opacity: .25; pointer-events: none; }
+
+/* bolinhas embaixo */
+.secs__dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 22px;
+}
+
+.secs__dots button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 249, 234, .3);
+  cursor: pointer;
+  transition: width .4s var(--ease), background-color .3s var(--ease);
+}
+
+.secs__dots button:hover { background: rgba(255, 249, 234, .6); }
+.secs__dots button.is-active { width: 24px; background: var(--green); }
+
+.secs__viewer.is-single .igbtn,
+.secs__viewer.is-single .secs__badge,
+.secs__viewer.is-single .secs__dots { display: none; }
+
+@media (max-width: 800px) {
+  .modal__panel.is-sections { grid-template-columns: 1fr; }
+  .modal__panel.is-sections .modal__info { padding: 0; order: 2; }
+  .modal__panel.is-sections .modal__media { order: 1; }
+  .modal__panel.is-sections .modal__nav { order: 3; }
+  .secs__viewer { --sh: clamp(260px, calc(100dvh - 270px), 560px); }
+}
+
+@media (max-width: 600px) {
+  .igbtn { display: none; }   /* no celular, só deslizar */
+  .secs__frame { flex-basis: 100%; }
+  .posts { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+
+
+/* ==========================================================
+   Álbum (ex.: Intuitiva): capa, contracapa e mockup com rótulos.
+   Ao trocar de imagem o "disco vira" (giro suave).
+   ========================================================== */
+.so-album .modal__stage {
+  perspective: 1400px;
+  width: min(100%, calc(100vh - 330px));   /* a imagem sempre cabe na altura da tela */
+  min-width: 260px;
+  aspect-ratio: 1 / 1;   /* padrão: capas quadradas; cada imagem pode definir a sua proporção (ratio) */
+  transition: aspect-ratio .45s var(--ease);
+}
+
+.so-album .modal__stage img {
+  transition: opacity .3s var(--ease), transform .45s var(--ease);
+}
+
+.so-album .modal__stage img.is-swap {
+  transform: rotateY(90deg) scale(.92);
+}
+
+.so-album .modal__thumbs { gap: 12px; flex-wrap: nowrap; }
+
+.so-album .modal__thumbs button {
+  flex: 0 0 118px;   /* miniaturas pequenas, para a imagem grande caber na tela */
+  width: 118px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 6px 8px;
+  background: #2f2f2f;
+  border-radius: 10px;
+  color: var(--cream);
+}
+
+.so-album .modal__thumbs button img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.so-album .modal__thumbs button span {
+  font: 600 .8rem var(--body);
+  letter-spacing: .03em;
+  text-align: center;
+}
+
+.so-album .modal__thumbs button.is-active span { color: var(--green); }
+
+/* ==========================================================
+   Grupos de posts / documentos (ex.: Karina Aviles) e PDF embutido
+   ========================================================== */
+.secs__group + .secs__group { margin-top: clamp(36px, 4vw, 56px); }
+.secs__group .secs__hint { margin-bottom: 22px; }
+
+/* miniatura com imagem horizontal (ex.: capa do PDF): aparece inteira sobre a cor de fundo */
+.post__img.is-contain img { object-fit: contain; }
+
+/* selo de texto no canto (ex.: PDF) */
+.post__icon--txt {
+  width: auto;
+  height: auto;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font: 700 .7rem var(--body);
+  letter-spacing: .06em;
+}
+
+/* PDF embutido na moldura */
+.secs__viewer.is-pdf .secs__frame { background: #fff; }
+
+.secs__strip iframe {
+  flex: none;
+  width: 100%;
+  aspect-ratio: var(--rn, 1.7778);
+  border: 0;
+  background: #fff;
+}
+
+.secs__actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.secs__actions[hidden] { display: none; }
+
+.secs__actions .btn {
+  font-size: .95rem;
+  padding: .75em 1.1em;
+}
