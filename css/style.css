@@ -1706,6 +1706,9 @@ html.no-scroll { overflow: hidden; }
     justify-self: center;
     width: min(100%, 640px);
     margin: 0 0 clamp(4px, 1.2vw, 14px);   /* espaço entre o quadro e o carrossel */
+    /* a imagem tem margem transparente desigual: o script.js mede (--tx) e esta linha empurra a moldura
+       para o desenho visível ficar no centro exato da tela */
+    left: calc(var(--tx, 0) * -1 * min(100%, 640px));
   }
 
   .car .proj { width: min(480px, 70vw); }
@@ -2310,4 +2313,219 @@ html.menu-open { overflow: hidden; }
 .secs__actions .btn {
   font-size: .95rem;
   padding: .75em 1.1em;
+}
+
+/* ==========================================================
+   Rodapé (CTA) nas telas menores: mesmo design do desktop.
+   As caudas ocupam sempre a altura toda do rodapé e a largura se ajusta sozinha
+   (proporção original da imagem, sem esticar), então a barbatana aparece igual ao desktop.
+   Entram 27% (esquerda) e 24% (direita) para fora da tela, como no desktop.
+   ========================================================== */
+@media (max-width: 1000px) {
+  .tail {
+    height: 100%;
+    width: auto;
+    max-width: none;
+    object-fit: fill;
+  }
+
+  .tail--l { left: 0;  transform: translateX(-27%); }
+  .tail--r { right: 0; transform: translateX(24%); }
+
+  .cta h2 { text-wrap: balance; }
+
+  /* asterisco de baixo (direita): mesmo padrão do desktop em qualquer largura —
+     fica sempre cortado no limite inferior da página (a mesma proporção do tamanho dele,
+     então escala junto). O de cima (esquerda) fica sempre cravado no limite superior. */
+  .ast--cta-tl { top: calc(var(--aw) * -.5); }
+  .ast--cta-br { bottom: calc(var(--aw) * -.45); }
+}
+
+@media (max-width: 600px) {
+  .cta {
+    --aw: clamp(44px, 13vw, 80px);
+    padding: clamp(30px, 8vw, 44px) 18vw;      /* reserva o espaço das caudas dos dois lados */
+  }
+
+  .cta h2 {
+    font-size: clamp(1.35rem, 6.4vw, 2.4rem);
+    max-width: none;
+    margin-bottom: clamp(20px, 5vw, 30px);
+  }
+
+  /* fica entre o botão e a cauda direita; o bottom continua o mesmo do desktop (-.45 do tamanho) */
+  .ast--cta-tl { left: 8vw; }
+  .ast--cta-br { right: 14vw; bottom: calc(var(--aw) * -.45); }
+}
+
+
+/* ==========================================================
+   Tela cheia (lightbox) das imagens
+   ========================================================== */
+.modal__stage { position: relative; }
+.modal__stage img,
+.secs__strip img { cursor: zoom-in; }
+
+.zoom-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 14px 0 11px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(20, 20, 20, .74);
+  backdrop-filter: blur(4px);
+  color: var(--cream);
+  font: 600 .82rem var(--body);
+  letter-spacing: .02em;
+  cursor: pointer;
+  transition: background-color .3s var(--ease), color .3s var(--ease), transform .3s var(--ease);
+}
+
+.zoom-btn[hidden] { display: none; }
+.zoom-btn:hover { background: var(--green); color: var(--ink); transform: translateY(-2px); }
+
+.lb {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(14, 14, 14, .97);
+  color: var(--cream);
+  opacity: 0;
+  transition: opacity .3s var(--ease);
+}
+
+.lb[hidden] { display: none; }
+.lb.is-open { opacity: 1; }
+
+.lb__view {
+  position: absolute;
+  inset: 0;
+  padding: 68px clamp(8px, 2vw, 24px) max(16px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.lb__img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transform-origin: center;
+  will-change: transform;
+  opacity: 0;
+  cursor: zoom-in;
+  transition: opacity .25s var(--ease);
+  -webkit-user-drag: none;
+}
+
+.lb__img.is-ready { opacity: 1; }
+.lb__img.is-anim { transition: opacity .25s var(--ease), transform .3s var(--ease); }
+.lb__view.is-zoomed .lb__img { cursor: grab; }
+
+.lb__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: max(12px, env(safe-area-inset-top)) clamp(12px, 2vw, 24px) 12px;
+  pointer-events: none;
+}
+
+.lb__bar > *,
+.lb__nav { pointer-events: auto; }
+
+.lb__count {
+  padding: 8px 13px;
+  border-radius: 999px;
+  background: rgba(47, 47, 47, .9);
+  color: var(--green);
+  font: 600 .9rem var(--body);
+  letter-spacing: .06em;
+}
+
+.lb__count[hidden] { display: none; }
+
+.lb__tools {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.lb__btn,
+.lb__nav {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #2f2f2f;
+  color: var(--cream);
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color .3s var(--ease), color .3s var(--ease), transform .35s var(--ease), opacity .3s var(--ease);
+}
+
+.lb__btn { width: 46px; height: 46px; font-size: 1.6rem; }
+.lb__btn[hidden],
+.lb__nav[hidden] { display: none; }
+.lb__btn--close { background: var(--red); font-size: 1.8rem; }
+
+.lb__btn:hover,
+.lb__nav:hover { background: var(--green); color: var(--ink); }
+.lb__btn:active,
+.lb__nav:active { transform: scale(.92); }
+
+.lb__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  width: 54px;
+  height: 54px;
+  margin-top: -27px;
+  background: var(--red);
+  font-size: 1.4rem;
+}
+
+.lb__nav--prev { left: clamp(8px, 2vw, 24px); }
+.lb__nav--next { right: clamp(8px, 2vw, 24px); }
+.lb__nav.is-off { opacity: .25; pointer-events: none; }
+
+.lb__hint {
+  position: absolute;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 3;
+  max-width: calc(100% - 32px);
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(47, 47, 47, .92);
+  font: 500 .85rem var(--body);
+  text-align: center;
+  opacity: 0;
+  translate: -50% 10px;
+  pointer-events: none;
+  transition: opacity .4s var(--ease), translate .4s var(--ease);
+}
+
+.lb__hint.is-show { opacity: 1; translate: -50% 0; }
+
+@media (max-width: 600px) {
+  .lb__nav { display: none; }   /* no celular: deslize para trocar de imagem */
+  .lb__btn { width: 44px; height: 44px; }
 }
