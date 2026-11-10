@@ -1708,7 +1708,9 @@ html.no-scroll { overflow: hidden; }
     margin: 0 0 clamp(4px, 1.2vw, 14px);   /* espaço entre o quadro e o carrossel */
     /* a imagem tem margem transparente desigual: o script.js mede (--tx) e esta linha empurra a moldura
        para o desenho visível ficar no centro exato da tela */
-    left: calc(var(--tx, 0) * -1 * min(100%, 640px));
+    left: calc(var(--tx, var(--frame-tx-fb, 0)) * -1 * min(100%, 640px));
+    margin-inline: auto;   /* centraliza a caixa da imagem em qualquer largura */
+    max-width: 100%;       /* nunca passa da largura da tela (a moldura encolhe junto) */
   }
 
   .car .proj { width: min(480px, 70vw); }
