@@ -83,7 +83,7 @@ if (map.length) addEventListener('scroll', () => {
    para o desenho ocupar o tamanho da referência. Precisa que a página rode por servidor
    (ex.: Live Server); abrindo o arquivo direto (file://) o navegador bloqueia e o CSS usa o valor reserva. */
 const trimCache = new Map();
-const TRIM_SEL = '.brand img, .icon-btn img, .pill img, .drawer__btn img';
+const TRIM_SEL = '.brand img, .icon-btn img, .pill img, .drawer__btn img, .g-hero__frame';
 
 function measureTrim(img) {
   const src = img.currentSrc || img.src;
@@ -968,6 +968,7 @@ const PROJETOS = [
 
   /* ---------- janela do projeto ---------- */
   const mImg = $('m-img'), mThumbs = $('m-thumbs');
+  let mFotos = [];   // imagens da janela (para a tela cheia)
 
   function trocarImagem(url, alt) {
     mImg.classList.add('is-swap');
@@ -1092,6 +1093,7 @@ const PROJETOS = [
     sPrev.classList.toggle('is-off', i === 0);
     sNext.classList.toggle('is-off', i === n - 1);
     sViewer.classList.toggle('is-single', n < 2);
+    if (typeof zoomStrip !== 'undefined') { const c = sStrip.children[i]; zoomStrip.hidden = !c || c.tagName !== 'IMG'; }
   }
 
   function irPara(i) {
@@ -1144,6 +1146,8 @@ const PROJETOS = [
 
     mThumbs.innerHTML = '';
     const altDe = i => album ? `${p.titulo}: ${album[i].rotulo}` : alt;
+    mFotos = grande.filter(Boolean).map((u, i) => ({ src: src(u), alt: altDe(i) }));
+    if (typeof zoomMain !== 'undefined') zoomMain.hidden = !mFotos.length;
     const moldura = i => { $('m-stage').style.aspectRatio = (album && album[i].ratio) || ''; };
     moldura(0);
     mImg.style.objectFit = 'cover';
@@ -1225,7 +1229,7 @@ const PROJETOS = [
   modal.addEventListener('click', e => { if (e.target.closest('[data-close]')) fechar(); });
 
   addEventListener('keydown', e => {
-    if (modal.hidden) return;
+    if (modal.hidden || lbOpen) return;
     if (e.key === 'Escape') fechar();
     else if (e.key === 'ArrowRight') { if (!sViewer.hidden) rolarFaixa(1); else $('m-next').click(); }
     else if (e.key === 'ArrowLeft')  { if (!sViewer.hidden) rolarFaixa(-1); else $('m-prev').click(); }
@@ -1238,8 +1242,277 @@ const PROJETOS = [
     }
   });
 
+
+  /* ==========================================================
+     TELA CHEIA (lightbox): clique/toque numa imagem para ampliar.
+     Zoom: botões + e −, roda do mouse, pinça, toque duplo. Arraste para mover.
+     Setas / deslizar para trocar de imagem. Esc ou × para fechar.
+     ========================================================== */
+  const ICONE_AMPLIAR = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>';
+  const LB_MAX = 6;
+  let lbOpen = false, lbPushed = false, lbList = [], lbIdx = 0, lbOpener = null, lbSync = null;
+  let lbS = 1, lbX = 0, lbY = 0;
+
+  const lb = document.createElement('div');
+  lb.className = 'lb';
+  lb.id = 'lb';
+  lb.hidden = true;
+  lb.setAttribute('role', 'dialog');
+  lb.setAttribute('aria-modal', 'true');
+  lb.setAttribute('aria-label', 'Imagem em tela cheia');
+  lb.innerHTML = `
+    <div class="lb__bar">
+      <span class="lb__count" aria-live="polite"></span>
+      <div class="lb__tools">
+        <button type="button" class="lb__btn" data-act="out" aria-label="Diminuir zoom">−</button>
+        <button type="button" class="lb__btn" data-act="in" aria-label="Aumentar zoom">+</button>
+        <button type="button" class="lb__btn lb__btn--fs" data-act="fs" aria-label="Tela cheia do navegador" hidden>${ICONE_AMPLIAR}</button>
+        <button type="button" class="lb__btn lb__btn--close" data-act="close" aria-label="Fechar tela cheia">×</button>
+      </div>
+    </div>
+    <div class="lb__view"><img class="lb__img" alt="" draggable="false"></div>
+    <button type="button" class="lb__nav lb__nav--prev" data-act="prev" aria-label="Imagem anterior">←</button>
+    <button type="button" class="lb__nav lb__nav--next" data-act="next" aria-label="Próxima imagem">→</button>
+    <p class="lb__hint"></p>`;
+  document.body.appendChild(lb);
+
+  const lbView = lb.querySelector('.lb__view'), lbImg = lb.querySelector('.lb__img');
+  const lbCount = lb.querySelector('.lb__count'), lbHint = lb.querySelector('.lb__hint');
+  const lbPrev = lb.querySelector('[data-act="prev"]'), lbNext = lb.querySelector('[data-act="next"]');
+  const lbFs = lb.querySelector('[data-act="fs"]');
+  if (document.fullscreenEnabled) lbFs.hidden = false;
+
+  function lbApply(anim) {
+    lbImg.classList.toggle('is-anim', !!anim);
+    lbImg.style.transform = `translate(${lbX}px, ${lbY}px) scale(${lbS})`;
+    lbView.classList.toggle('is-zoomed', lbS > 1.01);
+  }
+
+  function lbClamp() {
+    const mx = Math.max(0, (lbImg.offsetWidth * lbS - lbView.clientWidth) / 2);
+    const my = Math.max(0, (lbImg.offsetHeight * lbS - lbView.clientHeight) / 2);
+    lbX = Math.min(mx, Math.max(-mx, lbX));
+    lbY = Math.min(my, Math.max(-my, lbY));
+  }
+
+  /* cx, cy = ponto do zoom, em px a partir do centro da tela */
+  function lbZoom(ns, cx = 0, cy = 0, anim = false) {
+    ns = Math.min(LB_MAX, Math.max(1, ns));
+    const k = ns / lbS;
+    lbX = cx - (cx - lbX) * k;
+    lbY = cy - (cy - lbY) * k;
+    lbS = ns;
+    if (ns <= 1.001) { lbS = 1; lbX = 0; lbY = 0; }
+    lbClamp();
+    lbApply(anim);
+  }
+
+  function lbCentro(e) {
+    const r = lbView.getBoundingClientRect();
+    return [e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)];
+  }
+
+  function lbShow(i) {
+    lbIdx = Math.min(lbList.length - 1, Math.max(0, i));
+    const it = lbList[lbIdx];
+    lbS = 1; lbX = 0; lbY = 0; lbApply(false);
+    lbImg.classList.remove('is-ready');
+    lbImg.onload = () => lbImg.classList.add('is-ready');
+    lbImg.alt = it.alt || '';
+    lbImg.src = it.src;
+    if (lbImg.complete && lbImg.naturalWidth) lbImg.classList.add('is-ready');
+    const n = lbList.length;
+    lbCount.textContent = n > 1 ? `${lbIdx + 1} / ${n}` : '';
+    lbCount.hidden = n < 2;
+    lbPrev.hidden = lbNext.hidden = n < 2;
+    lbPrev.classList.toggle('is-off', lbIdx === 0);
+    lbNext.classList.toggle('is-off', lbIdx === n - 1);
+    [lbIdx - 1, lbIdx + 1].forEach(k => { if (lbList[k]) new Image().src = lbList[k].src; });
+  }
+
+  function lbGo(dir) { if (lbList.length > 1) lbShow(lbIdx + dir); }
+
+  let lbHintTimer = 0;
+  function lbDica() {
+    const toque = matchMedia('(pointer: coarse)').matches;
+    lbHint.textContent = toque ? 'Dê dois toques ou use a pinça para ampliar' : 'Use + e − ou a roda do mouse para ampliar · arraste para mover';
+    lbHint.classList.add('is-show');
+    clearTimeout(lbHintTimer);
+    lbHintTimer = setTimeout(() => lbHint.classList.remove('is-show'), 3800);
+  }
+
+  function lbOpenFrom(list, idx, opener, sync) {
+    if (!list.length || lbOpen) return;
+    lbList = list; lbSync = sync || null; lbOpener = opener || document.activeElement;
+    lb.hidden = false; lbOpen = true;
+    modal.inert = true;
+    lbShow(idx);
+    requestAnimationFrame(() => requestAnimationFrame(() => lb.classList.add('is-open')));
+    history.pushState({ lb: 1 }, '', location.href);   // o botão "voltar" do celular fecha só a tela cheia
+    lbPushed = true;
+    lb.querySelector('[data-act="close"]').focus({ preventScroll: true });
+    lbDica();
+  }
+
+  function lbDesfazer() {
+    if (!lbOpen) return;
+    lbOpen = false; lbPushed = false;
+    lb.classList.remove('is-open');
+    if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    modal.inert = false;
+    if (lbSync) lbSync(lbIdx);
+    setTimeout(() => { if (!lbOpen) { lb.hidden = true; lbImg.removeAttribute('src'); } }, 320);
+    if (lbOpener && lbOpener.focus) lbOpener.focus({ preventScroll: true });
+  }
+
+  function lbClose() {
+    if (!lbOpen) return;
+    if (lbPushed) { history.back(); setTimeout(() => { if (lbOpen) lbDesfazer(); }, 400); }
+    else lbDesfazer();
+  }
+
+  /* botões */
+  lb.addEventListener('click', e => {
+    const b = e.target.closest('[data-act]');
+    if (!b) return;
+    const a = b.dataset.act;
+    if (a === 'close') lbClose();
+    else if (a === 'prev') lbGo(-1);
+    else if (a === 'next') lbGo(1);
+    else if (a === 'in') lbZoom(lbS * 1.5, 0, 0, true);
+    else if (a === 'out') lbZoom(lbS / 1.5, 0, 0, true);
+    else if (a === 'fs') {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (lb.requestFullscreen) lb.requestFullscreen().catch(() => {});
+    }
+  });
+
+  /* toque / mouse: arrastar, pinça, toque duplo, deslizar para trocar */
+  const ptrs = new Map();
+  let pinch = null, down = null, ultimoToque = { t: 0, x: 0, y: 0 };
+
+  lbView.addEventListener('pointerdown', e => {
+    if (e.button) return;
+    lbView.setPointerCapture(e.pointerId);
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (ptrs.size === 2) {
+      const [a, b] = [...ptrs.values()];
+      pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, s: lbS };
+      down = null;
+    } else if (ptrs.size === 1) {
+      down = { x: e.clientX, y: e.clientY, t: Date.now(), x0: lbX, y0: lbY, moved: false, fundo: e.target === lbView };
+    }
+  });
+
+  lbView.addEventListener('pointermove', e => {
+    if (!ptrs.has(e.pointerId)) return;
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinch && ptrs.size >= 2) {
+      const [a, b] = [...ptrs.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      const r = lbView.getBoundingClientRect();
+      lbZoom(pinch.s * d / pinch.d, (a.x + b.x) / 2 - (r.left + r.width / 2), (a.y + b.y) / 2 - (r.top + r.height / 2));
+    } else if (down && ptrs.size === 1) {
+      const dx = e.clientX - down.x, dy = e.clientY - down.y;
+      if (Math.hypot(dx, dy) > 8) down.moved = true;
+      if (lbS > 1) { lbX = down.x0 + dx; lbY = down.y0 + dy; lbClamp(); lbApply(false); }
+    }
+  });
+
+  function lbSoltar(e) {
+    if (!ptrs.has(e.pointerId)) return;
+    ptrs.delete(e.pointerId);
+    if (pinch) { if (ptrs.size < 2) pinch = null; down = null; return; }
+    const d = down; down = null;
+    if (!d || e.type === 'pointercancel') return;
+    const dx = e.clientX - d.x, dy = e.clientY - d.y;
+    if (d.moved) {
+      if (lbS === 1 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) lbGo(dx < 0 ? 1 : -1);
+      return;
+    }
+    if (d.fundo && lbS === 1) { lbClose(); return; }   // toque no fundo fecha
+    const agora = Date.now();
+    if (agora - ultimoToque.t < 320 && Math.hypot(e.clientX - ultimoToque.x, e.clientY - ultimoToque.y) < 30) {
+      const [cx, cy] = lbCentro(e);
+      lbZoom(lbS > 1.05 ? 1 : 2.5, cx, cy, true);   // toque duplo: amplia / volta
+      ultimoToque = { t: 0, x: 0, y: 0 };
+    } else {
+      ultimoToque = { t: agora, x: e.clientX, y: e.clientY };
+    }
+  }
+  lbView.addEventListener('pointerup', lbSoltar);
+  lbView.addEventListener('pointercancel', lbSoltar);
+
+  lbView.addEventListener('wheel', e => {
+    e.preventDefault();
+    const [cx, cy] = lbCentro(e);
+    lbZoom(lbS * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)), cx, cy);
+  }, { passive: false });
+
+  addEventListener('resize', () => { if (lbOpen) { lbClamp(); lbApply(false); } });
+
+  addEventListener('keydown', e => {
+    if (!lbOpen) return;
+    if (e.key === 'Escape') { e.preventDefault(); lbClose(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); lbS > 1 ? (lbX -= 80, lbClamp(), lbApply(false)) : lbGo(1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); lbS > 1 ? (lbX += 80, lbClamp(), lbApply(false)) : lbGo(-1); }
+    else if (e.key === '+' || e.key === '=') lbZoom(lbS * 1.5, 0, 0, true);
+    else if (e.key === '-' || e.key === '_') lbZoom(lbS / 1.5, 0, 0, true);
+    else if (e.key === '0') lbZoom(1, 0, 0, true);
+    else if (e.key === 'Tab') {
+      const f = [...lb.querySelectorAll('button')].filter(x => !x.hidden && x.offsetParent !== null && !x.classList.contains('is-off'));
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  /* ---- botões "ampliar" e cliques nas imagens da janela ---- */
+  function criarBotaoZoom(pai, aoClicar) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'zoom-btn';
+    b.setAttribute('aria-label', 'Ampliar imagem em tela cheia');
+    b.innerHTML = ICONE_AMPLIAR + '<span>ampliar</span>';
+    b.addEventListener('click', e => { e.stopPropagation(); aoClicar(b); });
+    pai.appendChild(b);
+    return b;
+  }
+
+  function abrirDoPrincipal(btn) {
+    if (!mFotos.length) return;
+    let idx = mFotos.findIndex(f => f.src === mImg.getAttribute('src'));
+    if (idx < 0) idx = 0;
+    lbOpenFrom(mFotos, idx, btn, k => {
+      const t = mThumbs.querySelectorAll('button')[k];
+      if (t && k !== idx && !t.classList.contains('is-active')) t.click();   // a janela acompanha a imagem vista
+    });
+  }
+
+  function abrirDoSlide(btn, alvo) {
+    const imgs = [...sStrip.children].filter(c => c.tagName === 'IMG');
+    if (!imgs.length) return;
+    let idx = alvo ? imgs.indexOf(alvo) : -1;
+    if (idx < 0) {
+      const cur = sStrip.children[Math.round(sStrip.scrollLeft / (sStrip.clientWidth || 1))];
+      idx = Math.max(0, imgs.indexOf(cur));
+    }
+    lbOpenFrom(imgs.map(i => ({ src: i.getAttribute('src'), alt: i.alt })), idx, btn, k => {
+      const filhos = [...sStrip.children];
+      sStrip.scrollTo({ left: filhos.indexOf(imgs[k]) * sStrip.clientWidth, behavior: 'auto' });
+    });
+  }
+
+  const zoomMain = criarBotaoZoom(mStage, b => abrirDoPrincipal(b));
+  const zoomStrip = criarBotaoZoom(sStrip.parentElement, b => abrirDoSlide(b, null));
+  zoomStrip.hidden = true;
+  mImg.addEventListener('click', () => abrirDoPrincipal(zoomMain));
+  sStrip.addEventListener('click', e => { if (e.target.tagName === 'IMG') abrirDoSlide(zoomStrip, e.target); });
+
   /* ---------- link direto (galeria.html#slug) e botão voltar ---------- */
   function sincronizar() {
+    if (lbOpen) { lbDesfazer(); return; }   // voltar (celular) fecha só a tela cheia
     const p = PROJETOS.find(x => '#' + x.slug === location.hash);
     if (p) abrir(p); else fecharJanela();
   }
