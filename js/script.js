@@ -1248,7 +1248,7 @@ const PROJETOS = [
      Zoom: botões + e −, roda do mouse, pinça, toque duplo. Arraste para mover.
      Setas / deslizar para trocar de imagem. Esc ou × para fechar.
      ========================================================== */
-  const ICONE_AMPLIAR = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>';
+  const ICONE_AMPLIAR = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-7 7"/><path d="M10 20H4v-6M4 20l7-7"/></g></svg>';
   const LB_MAX = 6;
   let lbOpen = false, lbPushed = false, lbList = [], lbIdx = 0, lbOpener = null, lbSync = null;
   let lbS = 1, lbX = 0, lbY = 0;
@@ -1312,15 +1312,32 @@ const PROJETOS = [
     return [e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)];
   }
 
+  /* ajusta a imagem para ocupar o máximo possível da tela (amplia mesmo se o arquivo for menor) */
+  function lbFit() {
+    if (!lbImg.naturalWidth) return;
+    const vw = lbView.clientWidth, vh = lbView.clientHeight;
+    const nw = lbImg.naturalWidth, nh = lbImg.naturalHeight;
+    const BAR = 76;       // altura da faixa dos controles do topo
+    const CTRL = 290;     // largura que os controles ocupam nas laterais
+    // 1ª tentativa: quase a tela toda (16px de margem)
+    let k = Math.min((vw - 32) / nw, (vh - 32) / nh);
+    // se a imagem encostaria nos controles do topo, reserva a faixa deles em cima e embaixo (continua centralizada)
+    const topo = (vh - nh * k) / 2, lado = (vw - nw * k) / 2;
+    if (topo < BAR && lado < CTRL) k = Math.min((vw - 32) / nw, (vh - 2 * BAR) / nh);
+    lbImg.style.width = Math.round(lbImg.naturalWidth * k) + 'px';
+    lbImg.style.height = Math.round(lbImg.naturalHeight * k) + 'px';
+    lbClamp();
+  }
+
   function lbShow(i) {
     lbIdx = Math.min(lbList.length - 1, Math.max(0, i));
     const it = lbList[lbIdx];
     lbS = 1; lbX = 0; lbY = 0; lbApply(false);
     lbImg.classList.remove('is-ready');
-    lbImg.onload = () => lbImg.classList.add('is-ready');
+    lbImg.onload = () => { lbFit(); lbImg.classList.add('is-ready'); };
     lbImg.alt = it.alt || '';
     lbImg.src = it.src;
-    if (lbImg.complete && lbImg.naturalWidth) lbImg.classList.add('is-ready');
+    if (lbImg.complete && lbImg.naturalWidth) { lbFit(); lbImg.classList.add('is-ready'); }
     const n = lbList.length;
     lbCount.textContent = n > 1 ? `${lbIdx + 1} / ${n}` : '';
     lbCount.hidden = n < 2;
@@ -1338,7 +1355,7 @@ const PROJETOS = [
     lbHint.textContent = toque ? 'Dê dois toques ou use a pinça para ampliar' : 'Use + e − ou a roda do mouse para ampliar · arraste para mover';
     lbHint.classList.add('is-show');
     clearTimeout(lbHintTimer);
-    lbHintTimer = setTimeout(() => lbHint.classList.remove('is-show'), 3800);
+    lbHintTimer = setTimeout(() => lbHint.classList.remove('is-show'), 1000);
   }
 
   function lbOpenFrom(list, idx, opener, sync) {
@@ -1449,7 +1466,7 @@ const PROJETOS = [
     lbZoom(lbS * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)), cx, cy);
   }, { passive: false });
 
-  addEventListener('resize', () => { if (lbOpen) { lbClamp(); lbApply(false); } });
+  addEventListener('resize', () => { if (lbOpen) { lbFit(); lbClamp(); lbApply(false); } });
 
   addEventListener('keydown', e => {
     if (!lbOpen) return;
