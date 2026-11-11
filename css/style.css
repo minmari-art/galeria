@@ -1648,13 +1648,19 @@ html.no-scroll { overflow: hidden; }
 /* anterior / próximo */
 .modal__nav {
   grid-column: 1 / -1;
-  display: flex;
+  /* 3 colunas: as duas pontas têm a mesma largura (1fr), então o contador fica sempre no centro exato,
+     não importa o tamanho do nome do projeto anterior/próximo */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   padding-top: 14px;
   border-top: 1px solid rgba(255, 249, 234, .18);
 }
+
+.modal__nav .mnav { justify-self: start; }
+.modal__nav .mnav--next { justify-self: end; }
+.modal__count { text-align: center; }
 
 .mnav {
   display: flex;
@@ -2408,7 +2414,8 @@ html.menu-open { overflow: hidden; }
 .lb__view {
   position: absolute;
   inset: 0;
-  padding: 68px clamp(8px, 2vw, 24px) max(16px, env(safe-area-inset-bottom));
+  /* padding igual em cima e embaixo: a imagem fica no centro exato da tela */
+  padding: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2530,4 +2537,142 @@ html.menu-open { overflow: hidden; }
 @media (max-width: 600px) {
   .lb__nav { display: none; }   /* no celular: deslize para trocar de imagem */
   .lb__btn { width: 44px; height: 44px; }
+}
+
+/* Animações dos botões da tela cheia (xizinho, zoom e setas) */
+
+/* entrada: os botões "pulam" para dentro, um depois do outro */
+@keyframes lbpop {
+  from { opacity: 0; scale: .5; }
+  to   { opacity: 1; scale: 1; }
+}
+
+@keyframes lbslide-l {
+  from { opacity: 0; translate: -24px 0; scale: .7; }
+  to   { opacity: 1; translate: 0 0;     scale: 1; }
+}
+
+@keyframes lbslide-r {
+  from { opacity: 0; translate: 24px 0; scale: .7; }
+  to   { opacity: 1; translate: 0 0;    scale: 1; }
+}
+
+.lb.is-open .lb__btn--close {
+  animation: lbpop .5s var(--ease) .15s backwards;
+}
+.lb.is-open .lb__nav--prev { animation: lbslide-l .6s var(--ease) .2s backwards; }
+.lb.is-open .lb__nav--next { animation: lbslide-r .6s var(--ease) .2s backwards; }
+
+/* hover: o X gira, o + e − crescem, as setas deslizam para o lado que apontam */
+.lb__btn--close:hover { transform: rotate(90deg) scale(1.1); }
+.lb__btn--close:active { transform: rotate(90deg) scale(.9); }
+
+.lb__nav--prev:hover { transform: translateX(-5px) scale(1.1); }
+.lb__nav--next:hover { transform: translateX(5px) scale(1.1); }
+.lb__nav--prev:active { transform: translateX(-2px) scale(.92); }
+.lb__nav--next:active { transform: translateX(2px) scale(.92); }
+
+/* −, + e expandir da tela cheia: entram em sequência e reagem ao mouse */
+.lb.is-open .lb__btn[data-act="out"] { animation: lbpop .5s var(--ease) .05s backwards; }
+.lb.is-open .lb__btn[data-act="in"]  { animation: lbpop .5s var(--ease) .10s backwards; }
+.lb.is-open .lb__btn[data-act="fs"]  { animation: lbpop .5s var(--ease) .15s backwards; }
+
+.lb__btn[data-act="out"]:hover { transform: scale(1.12); }
+.lb__btn[data-act="in"]:hover  { transform: rotate(90deg) scale(1.12); }
+.lb__btn[data-act="fs"]:hover  { transform: scale(1.12); }
+
+.lb__btn[data-act="out"]:active { transform: scale(.9); }
+.lb__btn[data-act="in"]:active  { transform: rotate(90deg) scale(.9); }
+.lb__btn[data-act="fs"]:active  { transform: scale(.9); }
+
+.lb__btn[data-act="out"]:hover,
+.lb__btn[data-act="in"]:hover,
+.lb__btn[data-act="fs"]:hover { box-shadow: 0 8px 18px -6px rgba(198, 227, 132, .8); }
+
+/* expandir: as duas setinhas se afastam do centro junto com o botão */
+.lb__btn--fs svg path { transition: transform .45s var(--ease); }
+.lb__btn--fs:hover svg path:nth-child(1) { transform: translate(2.5px, -2.5px); }
+.lb__btn--fs:hover svg path:nth-child(2) { transform: translate(-2.5px, 2.5px); }
+
+/* botão "ampliar" da janela do projeto: as duas setinhas se afastam do centro ao passar o mouse, junto com o botão */
+.zoom-btn svg path {
+  transition: transform .45s var(--ease);
+}
+
+.zoom-btn:hover svg path:nth-child(1),
+.zoom-btn:focus-visible svg path:nth-child(1) { transform: translate(2.5px, -2.5px); }
+
+.zoom-btn:hover svg path:nth-child(2),
+.zoom-btn:focus-visible svg path:nth-child(2) { transform: translate(-2.5px, 2.5px); }
+
+.zoom-btn:hover { transform: translateY(-3px) scale(1.05); }
+.zoom-btn:active { transform: scale(.94); }
+
+.lb__btn--close,
+.lb__nav { box-shadow: 0 0 0 rgba(198, 227, 132, 0); }
+
+.lb__btn--close:hover,
+.lb__nav:hover { box-shadow: 0 8px 18px -6px rgba(198, 227, 132, .8); }
+
+/* ==========================================================
+   Setas centralizadas dentro dos círculos
+   O caractere ← → ↗ da fonte nunca fica no centro exato do círculo (depende da fonte do navegador).
+   Aqui o caractere é escondido e a seta é desenhada (máscara SVG) no centro geométrico do botão.
+   ========================================================== */
+.arrow,
+.car__btn,
+.igbtn,
+.lb__nav,
+.proj__go,
+.post__go {
+  font-size: 0;
+  padding: 0;
+}
+
+/* .lb__nav já é position:absolute, os outros precisam de position:relative para ancorar a seta */
+.arrow,
+.car__btn,
+.igbtn,
+.proj__go { position: relative; }
+
+.arrow::before,
+.car__btn::before,
+.igbtn::before,
+.lb__nav::before,
+.proj__go::before,
+.post__go::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 52%;
+  height: 52%;
+  translate: -50% -50%;
+  background: currentColor;
+  -webkit-mask: var(--arr) center / contain no-repeat;
+  mask: var(--arr) center / contain no-repeat;
+  pointer-events: none;
+}
+
+/* ← */
+#m-prev .arrow,
+#s-back,
+#c-prev,
+#s-prev,
+.lb__nav--prev {
+  --arr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5M11 6l-6 6 6 6'/%3E%3C/svg%3E");
+}
+
+/* → */
+#m-next .arrow,
+#c-next,
+#s-next,
+.lb__nav--next {
+  --arr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+}
+
+/* ↗ (seta do card do projeto e dos posts; .post__go já é position:absolute) */
+.proj__go,
+.post__go {
+  --arr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17L17 7M8 7h9v9'/%3E%3C/svg%3E");
 }
